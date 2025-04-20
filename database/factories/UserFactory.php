@@ -2,9 +2,10 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -23,20 +24,26 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
-        return[
-            StudentFactory::new()->create()->studentname,
-            StudentFactory::new()->create()->studentemail,
-            StudentFactory::new()->create()->studentphone,
-            StudentFactory::new()->create()->studentaddress,
-            
+        return [
+            'name' => fake()->name(),
+            'email' => fake()->unique()->safeEmail(),
+            'email_verified_at' => now(),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
         ];
-        // [
-        //     'name' => fake()->name(),
-        //     'email' => fake()->unique()->safeEmail(),
-        //     'email_verified_at' => now(),
-        //     'password' => static::$password ??= Hash::make('password'),
-        //     'remember_token' => Str::random(10),
-        // ];
+    }
+
+    // If you need to associate with a Student model, add this:
+    public function withStudent()
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->student()->create([
+                'studentname' => fake()->name(),
+                'studentemail' => $user->email, // or fake()->unique()->safeEmail()
+                'studentphone' => fake()->unique()->phoneNumber(),
+                'studentaddress' => fake()->address(),
+            ]);
+        });
     }
 
     /**
