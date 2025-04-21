@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Departments;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +26,10 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
+
+
+
+
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
@@ -45,6 +50,14 @@ class UserFactory extends Factory
             ]);
         });
     }
+    public function withDepartment()
+{
+    return $this->afterCreating(function (User $user) {
+        $user->department()->create(
+            Departments::factory()->make()->toArray()
+        );
+    });
+}
 
     /**
      * Indicate that the model's email address should be unverified.
